@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"text/template"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var db *sql.DB //indicate the DB instance memory location into the sql.

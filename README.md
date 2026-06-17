@@ -1,6 +1,6 @@
 # Go & MySQL Todo API
 
-A lightweight, containerized Todo REST API built with Go and MySQL. The entire application environment is managed using Docker Compose, allowing for seamless local development without needing to manually install Go or MySQL on your host machine.
+A lightweight, containerized Todo App built with Go and MySQL. The entire application environment is managed using Docker Compose, allowing for seamless local development without needing to manually install Go or MySQL on your host machine.
 
 ## 🛠️ Architecture & Tech Stack
 
