@@ -50,6 +50,7 @@ func main() {
 
 	tmplt = template.Must(template.ParseFiles("templates/index.html"))
 	http.HandleFunc("/", showTasksHandler)
+	http.HandleFunc("/addTask", addTasksHandler)
 
 	fmt.Println("🚀 Server running smoothly at http://localhost:8000")
 	log.Fatal(http.ListenAndServe(":8000", nil))
@@ -73,10 +74,25 @@ func showTasksHandler(writer http.ResponseWriter, request *http.Request) {
 		var taskTitle string
 		err := rows.Scan(&taskTitle)
 		if err != nil {
-			http.Error(writer, "row processing error", http.StatusInternalServerError)
+			http.Error(writer, "Row processing error. Cause: ", http.StatusInternalServerError)
 			return
 		}
 		tasks = append(tasks, taskTitle)
 	}
 	tmplt.Execute(writer, tasks) // send tasks as writer to http
+}
+
+func addTasksHandler(writer http.ResponseWriter, request *http.Request) {
+	if request.Method == http.MethodPost {
+		taskTitle := request.FormValue("task")
+		if taskTitle != "" {
+			insertSQL := "INSERT INTO tasks (title) VALUE (?)"
+			_, err := db.Exec(insertSQL, taskTitle)
+			if err != nil {
+				http.Error(writer, "Data not saved because of ", http.StatusInternalServerError)
+				return
+			}
+		}
+	}
+	http.Redirect(writer, request, "/", http.StatusSeeOther) // redirect to the home page after successfully add data
 }
