@@ -35,6 +35,17 @@ func main() {
 		log.Fatal("Database is not reachable checked by ping ", err)
 	}
 
+	// Create database
+	createTableSQL := `CREATE TABLE IF NOT EXISTS tasks (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		title VARCHAR(255) NOT NULL
+	);`
+
+	_, err = db.Exec(createTableSQL)
+	if err != nil {
+		log.Fatal("Table not created because: ", err)
+	}
+
 	fmt.Println("🚀 Server running smoothly at http://localhost:8000")
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
