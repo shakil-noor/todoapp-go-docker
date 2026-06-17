@@ -24,7 +24,7 @@ services:
   # The Go Web Application Container Service
   web:
     build: .
-    container_name: todo_go_web
+    container_name: todoapp_go_docker
     ports:
       - "8000:8000"
     environment:
