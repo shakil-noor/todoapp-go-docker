@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # The Database Infrastructure Service
+  db:
+    image: mysql:8.0
+    container_name: todo_mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_admin_password
+      MYSQL_DATABASE: app_todo_db
+      MYSQL_USER: app_web_user
+      MYSQL_PASSWORD: secure_user_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_storage_volume:/var/lib/mysql
+    # Senior Guardrail: Ensure container is operational before dependents attach
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "app_web_user", "-psecure_user_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # The Go Web Application Container Service
+  web:
+    build: .
+    container_name: todo_go_web
+    ports:
+      - "8000:8000"
+    environment:
+      DB_USER: app_web_user
+      DB_PASSWORD: secure_user_password
+      DB_HOST: db   # Matches the service name of our database above!
+      DB_PORT: 3306
+      DB_NAME: app_todo_db
+    depends_on:
+      db:
+        condition: service_healthy
+
+# Preserve your data safely across container updates/reboots
+volumes:
+  mysql_storage_volume:
