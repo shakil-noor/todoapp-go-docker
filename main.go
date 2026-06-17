@@ -49,7 +49,34 @@ func main() {
 	}
 
 	tmplt = template.Must(template.ParseFiles("templates/index.html"))
+	http.HandleFunc("/", showTasksHandler)
 
 	fmt.Println("🚀 Server running smoothly at http://localhost:8000")
 	log.Fatal(http.ListenAndServe(":8000", nil))
+}
+
+func showTasksHandler(writer http.ResponseWriter, request *http.Request) {
+	if request.URL.Path != "/" {
+		http.NotFound(writer, request)
+		return
+	}
+	// take data from database
+	rows, err := db.Query("SELECT title FROM tasks ORDER BY id DESC")
+	if err != nil {
+		http.Error(writer, "Database execution error during read", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var tasks []string
+	for rows.Next() {
+		var taskTitle string
+		err := rows.Scan(&taskTitle)
+		if err != nil {
+			http.Error(writer, "row processing error", http.StatusInternalServerError)
+			return
+		}
+		tasks = append(tasks, taskTitle)
+	}
+	tmplt.Execute(writer, tasks) // send tasks as writer to http
 }
