@@ -6,9 +6,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"text/template"
 )
 
 var db *sql.DB //indicate the DB instance memory location into the sql.
+var tmplt *template.Template
 
 func main() {
 	// Gather configuration from environment variables (12-Factor App rule)
@@ -45,6 +47,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Table not created because: ", err)
 	}
+
+	tmplt = template.Must(template.ParseFiles("templates/index.html"))
 
 	fmt.Println("🚀 Server running smoothly at http://localhost:8000")
 	log.Fatal(http.ListenAndServe(":8000", nil))
