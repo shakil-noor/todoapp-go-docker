@@ -1,7 +1,7 @@
 name: Go & Docker Hub CI
 on:
   push:
-    branch: ["main"]
+    branches: ["main"]
 
 env:
   REGISTRY: docker.io
@@ -18,16 +18,16 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.26' # Match the project's Go version
-          cache: 'true'
+          cache: true
 
       - name: Install Dependencies
-        uses: go mod download # download the GO dependencies at runner (runs-on: ubuntu-latest)
+        run: go mod download # download the GO dependencies at runner (runs-on: ubuntu-latest)
 
       - name: Run Lister / Vet
-        uses: go vet ./...
+        run: go vet ./...
 
       - name: Run Test
-        uses: go test -v -race -covermod=atomic ./...
+        run: go test -v -race -covermod=atomic ./...
 
   build-and-push:
     needs: test
@@ -64,6 +64,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
+          cache-to: type=gha,mode=max
 
 
 # go vet inspects your source code without running it (static analysis).
