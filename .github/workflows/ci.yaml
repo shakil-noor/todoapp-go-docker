@@ -11,15 +11,18 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      # in this step It downloads a copy GitHub repository's source code onto the runner machine.
       - name: Checkout Repo
         uses: actions/checkout@v4
 
+      # It installs the Go compiler (specifically with version) onto the runner.
       - name: Set up GO
         uses: actions/setup-go@v5
         with:
-          go-version: '1.26' # Match the project's Go version
+          go-version: '1.26' # Match the project's Go version.
           cache: true
 
+      # It reads go.mod and go.sum files and downloads all external third-party Go packages (like database drivers or routers) that application needs to successfully compile.
       - name: Install Dependencies
         run: go mod download # download the GO dependencies at runner (runs-on: ubuntu-latest)
 
