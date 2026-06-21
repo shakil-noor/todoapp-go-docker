@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"text/template"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -27,16 +28,24 @@ func main() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
 
 	var err error
-	db, err = sql.Open("mysql", dsn)
-	if err != nil {
-		log.Fatal("Failed to open database connection pool: ", err)
-	}
-	defer db.Close()
+	// Try connecting up to 5 times
+	for i := 1; i <= 5; i++ {
+		log.Printf("Connecting to database (Attempt %d/5)...", i)
+		db, err = sql.Open("mysql", dsn)
+		if err == nil {
+			err = db.Ping()
+			if err == nil {
+				log.Println("Successfully connected to the database!")
+				break
+			}
+		}
 
-	// Verify connection is physically alive before starting the engine
-	err = db.Ping()
+		log.Printf("Database not ready yet, waiting 3 seconds... Error: %v", err)
+		time.Sleep(3 * time.Second)
+	}
+
 	if err != nil {
-		log.Fatal("Database is not reachable checked by ping ", err)
+		log.Fatalf("Could not connect to database after 10 attempts: %v", err)
 	}
 
 	// Create database
